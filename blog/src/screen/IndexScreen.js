@@ -1,30 +1,27 @@
 import React, {useContext} from "react";
 import {StyleSheet, View, Text, FlatList, TouchableOpacity} from "react-native";
-import BlogContext from "../context/BlogContext";
+import { Context as BlogContext } from "../context/BlogContext";
+import {Feather, MaterialIcons} from '@expo/vector-icons';
 
-export const IndexScreen = () => {
-  const { blogPosts, addBlog, removeBlog } = useContext(BlogContext);
+const IndexScreen = ({ navigation }) => {
+  const { state, addBlog, removeBlog } = useContext(BlogContext);
 
   return (
     <View>
       <FlatList
-        keyExtractor={(item) => item.title}
-        data={blogPosts}
+        keyExtractor={(item) => item.id}
+        data={state}
         showsVerticalScrollIndicator={false}
         renderItem={({item, index}) => {
           return <View style={styles.blogItemStyle}>
-            <Text style={{ flex: 1 }}>{item.title}</Text>
-            <TouchableOpacity onPress={() => removeBlog(index)} style={styles.deleteButton}><Text style={{color: "#FFF"}}>Delete</Text></TouchableOpacity>
+            <TouchableOpacity style={{ flex: 1 }} onPress={() => navigation.navigate("Blog", { id: item.id   })}>
+              <Text style={{fontSize: 18, fontWeight: "bold"}}>{item.title}</Text>
+              <Text style={{fontSize: 14}}>{item.description?.slice(0, 30)}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => removeBlog(item.id)}><MaterialIcons name="delete" size={24} color="#b83438" /></TouchableOpacity>
           </View>
         }}
       />
-
-      <TouchableOpacity
-        onPress={addBlog}
-        style={styles.addButton}
-      >
-        <Text style={{textAlign: "center", color: "#FFF"}}>Add Blog Post</Text>
-      </TouchableOpacity>
     </View>
   )
 }
@@ -37,16 +34,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#FFF",
     borderColor: "#e3e0e0",
-    border: 1,
-    flexDirection: "row"
+    flexDirection: "row",
+    alignItems: "center"
   },
   addButton: {
-    margin: 15,
+    marginHorizontal: 15,
+    marginTop: 15,
     padding: 15,
     borderRadius: 10,
     backgroundColor: "#5dab3c",
     borderColor: "#4c8d31",
-    border: 1,
     textAlign: "center"
   },
   deleteButton: {
@@ -54,7 +51,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#b83438",
     borderColor: "#8c272a",
-    border: 1,
     textAlign: "center"
   }
 })
+
+IndexScreen.navigationOptions = ({navigation}) => {
+  return {
+    headerRight: () => (
+      <TouchableOpacity style={{ marginHorizontal: 10 }} onPress={() => navigation.navigate('CreateBlog')}>
+        <Feather name="plus" size={30} />
+      </TouchableOpacity>
+    ),
+  };
+}
+
+export default IndexScreen;
